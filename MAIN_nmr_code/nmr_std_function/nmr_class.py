@@ -313,6 +313,24 @@ class tunable_nmr_system_2018:
             str(plength[15]) + " " +  
             str(plength[16]) + " " +
             str(plength[17]) + " " +
+            str(plength[18]) + " " +
+            str(plength[19]) + " " +
+            str(plength[20]) + " " +
+            str(plength[21]) + " " +
+            str(plength[22]) + " " +
+            str(plength[23]) + " " +
+            str(plength[24]) + " " +
+            str(plength[25]) + " " +
+            str(plength[26]) + " " +
+            str(plength[27]) + " " +
+            str(plength[28]) + " " +
+            str(plength[29]) + " " +
+            str(plength[30]) + " " +
+            str(plength[31]) + " " +
+            str(plength[32]) + " " +
+            str(plength[33]) + " " +  
+            str(plength[34]) + " " +
+            str(plength[35]) + " " +
             str(pspac) + " " +                      
             str(iter) + " " + 
             str(sen_channel)     
@@ -339,8 +357,42 @@ class tunable_nmr_system_2018:
             str(plength[15]) + " " +  
             str(plength[16]) + " " +
             str(plength[17]) + " " +
+            str(plength[18]) + " " +
+            str(plength[19]) + " " +
+            str(plength[20]) + " " +
+            str(plength[21]) + " " +
+            str(plength[22]) + " " +
+            str(plength[23]) + " " +
+            str(plength[24]) + " " +
+            str(plength[25]) + " " +
+            str(plength[26]) + " " +
+            str(plength[27]) + " " +
+            str(plength[28]) + " " +
+            str(plength[29]) + " " +
+            str(plength[30]) + " " +
+            str(plength[31]) + " " +
+            str(plength[32]) + " " +
+            str(plength[33]) + " " +  
+            str(plength[34]) + " " +
+            str(plength[35]) + " " +
             str(pspac) + " " +                      
             str(iter)  
+        )
+        
+    def igbtSenReadingMulti (self, sen_channel, num_iter, enable_message):
+        os.system(
+            self.work_dir + self.exec_folder + "hall_reading_multi" + " " +
+            str(sen_channel[0]) + " " +
+            str(sen_channel[1]) + " " +
+            str(sen_channel[2]) + " " +
+            str(sen_channel[3]) + " " +
+            str(sen_channel[4]) + " " +
+            str(sen_channel[5]) + " " +
+            str(sen_channel[6]) + " " +
+            str(sen_channel[7]) + " " +
+            str(sen_channel[8]) + " " +
+            str(num_iter) + " " +
+            str(enable_message)
         )
         
     def igbtSenReading (self, sen_channel, num_iter):

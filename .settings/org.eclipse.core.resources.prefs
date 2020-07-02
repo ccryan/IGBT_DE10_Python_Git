@@ -1,3 +1,5 @@
 eclipse.preferences.version=1
+encoding//MAIN_nmr_code/multi_magnet_control_revision001.py=utf-8
+encoding//MAIN_nmr_code/nmr_std_function/FeedbackController_revision001.py=utf-8
 encoding//MAIN_nmr_code/nmr_std_function/kalman_filter_for_fpga.py=utf-8
 encoding//MAIN_nmr_code/single_magnet_control.py=utf-8

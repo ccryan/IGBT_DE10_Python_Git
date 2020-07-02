@@ -20,13 +20,13 @@ from nmr_std_function.kalman_filter_for_fpga import Kalman_Filter
 
 # variables
 data_folder = "/root/HallSensorData"
-en_remote_dbg = 1
+en_remote_dbg = 0
 nmrObj = tunable_nmr_system_2018(data_folder, en_remote_dbg)
 
 # sensor address
-sen_address = 99
+sen_address = 28
 
-num_channel = 18
+num_channel = 36
 plength_forward = numpy.zeros(num_channel)
 plength_backward = numpy.zeros(num_channel)
 
@@ -37,17 +37,17 @@ time_total = []
 
 I = 0                                             # initialize integral state
 
-Kp = .1                                        # 0.2proportional gain - needs tuning
-Ki =  0.015                                       # 0.02 integral gain - needs tuning
-b =  .5                                          # setpoint weighting - needs tuning
+Kp = 0.1                                        # 0.6 .10 proportional gain - needs tuning
+Ki =  0.05                                      # 0.1875 0.02 integral gain - needs tuning
+b =  1                                          # .8 setpoint weighting - needs tuning
 
 maxDutyCycle = 20;                                # duty cycle limits
 minDutyCycle = -20;
 
-setpoint = 0                                 # target magnetization in mTesla
+setpoint = 200                           # target magnetization in mTesla
 n_iter = 50                                     # number of iteration for hall reading
     
-for t in range(0,25):                             # control algorithm main loop
+for t in range(0,3):                             # control algorithm main loop
     r = setpoint                                  # read target magnetization value, e.g. from GUI
 
     # --------------------------------------
@@ -96,11 +96,11 @@ for t in range(0,25):                             # control algorithm main loop
     iter = 1    # number of iteration
     
     if u >= 0:
-        plength_forward[0] = abs(np.int(u))                         # actuate magnet
+        plength_forward[16] = abs(np.int(u))                         # actuate magnet
         nmrObj.igbtPulseMagnetControl(plength_forward, pspac, iter)
       # positive_channel(u)                       # positive current channel
     if u < 0:
-        plength_backward[2] = abs(np.int(u))
+        plength_backward[18] = abs(np.int(u))
         nmrObj.igbtPulseMagnetControl(plength_backward, pspac, iter)
       # negative_channel(u)                       # negative current channel
     # --------------------------------------
@@ -114,7 +114,7 @@ for t in range(0,25):                             # control algorithm main loop
 
 # save results as MAT file
 st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d %H_%M_%S')
-sio.savemat('Feedback_Control_Results '+st+'.mat', {'Iteration':time_total,'Current':current_total,'Magnetization':magnetization_total, 'Error':error_total,'control_param':[Kp,Ki,b]})
+sio.savemat('Feedback_Control_Results '+st+'.mat', {'Iteration':time_total,'Current':current_total,'Magnetization':magnetization_total, 'Error':error_total,'control_param':[Kp,Ki,b],'set_point':setpoint})
 
 # plot results with mathplotlib
 plt.figure(figsize=(9, 9))

@@ -65,11 +65,11 @@ def parse_csv_returnZreading(data_folder, file_name):
     for a in csv_f:
         i = i + 1 # skip header
         if i >2:
-            data1.append(float(a[4].replace("\t",""))) 
-
+            data1.append(np.double(a[4].replace("\t",""))) 
+            
     f.close()
-    return data1
 
+    return data1
 
 def parse_info(data_folder, file_name):
     # filename = "CPMG_iterate_settings.txt"
