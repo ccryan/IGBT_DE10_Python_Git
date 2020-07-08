@@ -34,12 +34,12 @@ nmrObj = tunable_nmr_system_2018(data_folder, en_remote_dbg)
 num_channel = 36
 plength = numpy.zeros(num_channel)
 
-# customize pulse length (do not exceed 50, always keep one channel at 0)
-plength[12] = 0 #negative
-plength[14] = 50 #positive
+# customize pulse length
+plength[9] = 20
+plength[11] = 0
 
 # sensor address
-sen_address = 23
+sen_address = 31
 pspac = 200
 
 # one duty cycle (us)
