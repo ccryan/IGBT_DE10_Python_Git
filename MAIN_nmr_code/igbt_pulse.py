@@ -35,11 +35,11 @@ num_channel = 36
 plength = numpy.zeros(num_channel)
 
 # customize pulse length
-plength[35] = 50
-plength[18] = 50
+plength[9] = 20
+plength[11] = 0
 
 # sensor address
-sen_address = 4
+sen_address = 31
 pspac = 200
 
 # one duty cycle (us)
