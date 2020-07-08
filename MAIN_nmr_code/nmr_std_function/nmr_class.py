@@ -383,7 +383,7 @@ class tunable_nmr_system_2018:
         
     def igbtSenReadingMulti (self, sen_channel, num_iter, enable_message):
         os.system(
-            self.work_dir + self.exec_folder + "hall_reading_multi" + " " +
+            self.work_dir + self.exec_folder + "hall_reading_multi_ver2" + " " +
             str(sen_channel[0]) + " " +
             str(sen_channel[1]) + " " +
             str(sen_channel[2]) + " " +

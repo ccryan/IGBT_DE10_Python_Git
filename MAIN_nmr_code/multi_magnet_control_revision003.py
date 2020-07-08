@@ -35,8 +35,9 @@ plength = np.zeros(num_channel)
 
 #plength_forward = numpy.zeros(num_channel)
 #plength_backward = numpy.zeros(num_channel)
-n_reading = 1    # number of reading 
+n_reading = 2    # number of reading 
 sen_address = [28, 29, 31, 33, 32 ,30, 34, 35, 36 ]
+#sen_address = [19, 20, 31, 33, 32 ,30, 34, 35, 36 ]
 forward_direction_addr = [9, 13, 16, 0, 4, 1, 5, 8, 12]
 reverse_direction_addr = [11, 15, 18, 2, 6, 3, 7, 10, 14]
 enable_message = False
@@ -158,21 +159,21 @@ for n in range(0,magnets_num):
 
 for t in range(0, loop_iteration_total):
     plength = np.zeros(num_channel)
+
+    print("Start of iteration {}".format(t))
     # read hall sensor value in Tesla
     nmrObj.igbtSenReadingMulti(sen_address, n_reading, enable_message)
-    print("Start of iteration {}".format(t))
+    zReading = parse_csv_returnZreading(data_folder, 'Current_Reading.csv')  # in Gauss
+    
     for n in range(0,magnets_num):        
         # read hall sensor value in Tesla
-        nmrObj.igbtSenReading(sen_address[n], n_reading)
-        
-        zReading = parse_csv_returnZreading(data_folder, 'Current_Reading_{}.csv'.format(sen_address[n]))  # in Gauss
-        time.sleep(1.1) 
-        
-        os.remove(data_folder + '/Current_Reading_{}.csv'.format(sen_address[n])) # delete current_reading.csv every time
-        
+        # nmrObj.igbtSenReading(sen_address[n], n_reading)
+
+        zReading_Sensor = zReading[n_reading* n: n_reading*(n+1)]
+       
         # kalman filter
-        ZReading_Average = Kalman_Filter(n_reading, zReading)
-        y = ZReading_Average
+        ZReading_Average = Kalman_Filter(n_reading, zReading_Sensor)
+        y = ZReading_Average  
         print("\n")   
         print("\tCurrent hall reading is : {}".format(y))
         print("\tSensor Address is : {}".format(sen_address[n]))
@@ -188,6 +189,7 @@ for t in range(0, loop_iteration_total):
         if u < 0:
             plength[reverse_direction_addr[n]] = abs(np.int(u))
     
+    os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
     print("\t plength : {}".format(plength))
     nmrObj.igbtPulseMagnetControl(plength, pspac, pulse_reptition)
 
