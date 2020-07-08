@@ -35,12 +35,13 @@ num_channel = 36
 plength = numpy.zeros(num_channel)
 
 # customize pulse length
-plength[0] = 0
-plength[0] = 50
+#plength[0] = 0
+#plength[0] = 50
 
 # sensor address
 sen_address = 2
 pspac = 200
+enable_message = True
 
 # one duty cycle (us)
 iter = 1    # number of iteration
@@ -54,7 +55,7 @@ except:
     print("file does not exist")
        
 # read hall sensor value in Tesla
-nmrObj.FOVSenReading()
+nmrObj.FOVSenReading(n_reading, enable_message)
 
 '''
 #zReading = parse_csv_returnZreading(data_folder, 'Current_Reading.csv')  # in Gauss

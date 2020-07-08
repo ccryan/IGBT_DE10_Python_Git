@@ -34,12 +34,12 @@ nmrObj = tunable_nmr_system_2018(data_folder, en_remote_dbg)
 num_channel = 36
 plength = numpy.zeros(num_channel)
 
-# customize pulse length
-plength[35] = 50
-plength[18] = 50
+# customize pulse length (do not exceed 50, always keep one channel at 0)
+plength[12] = 0 #negative
+plength[14] = 50 #positive
 
 # sensor address
-sen_address = 4
+sen_address = 23
 pspac = 200
 
 # one duty cycle (us)
@@ -75,9 +75,9 @@ except:
     print("file does not exist")
 
 # read hall sensor value in Tesla
-# nmrObj.igbtSenReading(sen_address, n_reading)
-# zReading = parse_csv_returnZreading(data_folder, 'Current_Reading.csv')  # in Gauss
-# os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
+nmrObj.igbtSenReading(sen_address, n_reading)
+zReading = parse_csv_returnZreading(data_folder, 'Current_Reading.csv')  # in Gauss
+os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
 
 # kalman filter
 ZReading_Average = Kalman_Filter(n_reading, zReading)

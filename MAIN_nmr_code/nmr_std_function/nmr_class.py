@@ -148,11 +148,13 @@ class tunable_nmr_system_2018:
         self.gnrl_cnt = 0
 
         # ip addresses settings for the system
-        self.server_ip = '192.168.137.2'  # '129.22.143.88'
-        self.client_ip = '192.168.137.1'  # '129.22.143.39'
+        #self.server_ip = '192.168.137.2'  # '129.22.143.88'
+        #self.client_ip = '192.168.137.1'  # '129.22.143.39'
+        self.server_ip = '192.168.10.106'  # '129.22.143.88'
+        self.client_ip = '192.168.10.153'  # '129.22.143.39'
         self.server_path = '/root/nmr_pcb20_hdl10_2018/MAIN_nmr_code/'
         # client path with samba
-        self.client_path = 'X:\\nmr_pcb20_hdl10_2018\\MAIN_nmr_code\\'
+        self.client_path = 'W:\\nmr_pcb20_hdl10_2018\\MAIN_nmr_code\\'
 
         if en_remote_dbg:
             from pydevd_file_utils import setup_client_server_paths
@@ -402,9 +404,11 @@ class tunable_nmr_system_2018:
             str(num_iter) 
         )
     
-    def FOVSenReading (self):
+    def FOVSenReading (self, num_iter, enable_message):
         os.system(
-            self.work_dir + self.exec_folder + "hallArray_reading"
+            self.work_dir + self.exec_folder + "hallArray_readingSingleBoard" + " " +
+            str(num_iter) + " " +
+            str(enable_message)
         )
     
     def cpmgSequence(self, cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo, echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int):

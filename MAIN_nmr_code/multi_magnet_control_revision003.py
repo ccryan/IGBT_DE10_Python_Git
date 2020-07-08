@@ -35,10 +35,10 @@ plength = np.zeros(num_channel)
 
 #plength_forward = numpy.zeros(num_channel)
 #plength_backward = numpy.zeros(num_channel)
-n_reading = 10    # number of reading 
-sen_address = [28, 29, 31, 33, 32 ,30, 34, 35, 36 ]
-forward_direction_addr = [9, 13, 16, 0, 4, 1, 5, 8, 12]
-reverse_direction_addr = [11, 15, 18, 2, 6, 3, 7, 10, 14]
+n_reading = 20    # number of reading 
+sen_address = [19, 20, 21, 22, 23 , 24, 25, 26, 27 ]
+forward_direction_addr = [0, 4, 24, 8, 12, 9, 13, 16, 20]
+reverse_direction_addr = [2, 6, 26, 10, 14, 11, 15, 18, 22]
 enable_message = False
 if enable_message == False:
     print("\n") 
@@ -48,7 +48,7 @@ if enable_message == False:
 
 
 # -------------------- Controller initialization -------------------------------    
-loop_iteration_total = 1
+loop_iteration_total = 15
 
 
 magnets_num = 9
@@ -57,24 +57,36 @@ controllers = []
 
 U=np.zeros(magnets_num)
 
-Kp = .1                                      # 0.1 .05 0.6 .10 proportional gain - needs tuning
-Ki = 0.2                                     #.06 .1 0.2 0.1875 0.02 integral gain - needs tuning
-Kd = 0                                           # differential gain 
-beta = .6                                      # .7  .6 setpoint weighting - needs tuning
+Kp = .05                                      # 0.1 .05 0.6 .10 proportional gain - needs tuning
+Ki = 0.05                                     #.06 .1 0.2 0.1875 0.02 integral gain - needs tuning
+Kd = 0                                       # differential gain 
+beta = .5                                    # .7  .6 setpoint weighting - needs tuning
 
 min_pulse_length, max_pulse_length = -50,50.     # pulse length limits in mico seconds 
 
 setpoints = np.zeros(magnets_num)                # target magnetization in mTesla
-setpoints[0] = 100
-setpoints[1] = 100
-setpoints[2] = 100
-setpoints[3] = 100
-setpoints[4] = 900
-setpoints[5] = 100                        
-setpoints[6] = 100
-setpoints[7] = 100
-setpoints[8] = 100
+setpoints[0] = -300
+setpoints[1] = 1500
+setpoints[2] = 1500
+setpoints[3] = 1500
+setpoints[4] = 1500
+setpoints[5] = 1500                        
+setpoints[6] = 1500
+setpoints[7] = 1500
+setpoints[8] = 1500
 """
+pulse_on = {}
+pulse_on[0] = False
+pulse_on[1] = True
+pulse_on[2] = True
+pulse_on[3] = True
+pulse_on[4] = True
+pulse_on[5] = True
+pulse_on[6] = True
+pulse_on[7] = True
+pulse_on[8] = True
+"""
+#here we define which magnet are controlled with the feedback loop and which are not
 pulse_on = {}
 pulse_on[0] = True
 pulse_on[1] = True
@@ -85,17 +97,7 @@ pulse_on[5] = True
 pulse_on[6] = True
 pulse_on[7] = True
 pulse_on[8] = True
-"""
-pulse_on = {}
-pulse_on[0] = False
-pulse_on[1] = False
-pulse_on[2] = False
-pulse_on[3] = False
-pulse_on[4] = True
-pulse_on[5] = False
-pulse_on[6] = False
-pulse_on[7] = False
-pulse_on[8] = False
+
 
 for n in range(0,magnets_num):
         
@@ -113,11 +115,11 @@ for t in range(0, loop_iteration_total):
     plength = np.zeros(num_channel)
     # read hall sensor value in Tesla
     nmrObj.igbtSenReadingMulti(sen_address, n_reading, enable_message)
+    print("Start of iteration {}".format(t))
     for n in range(0,magnets_num):        
-        '''
         # read hall sensor value in Tesla
         nmrObj.igbtSenReading(sen_address[n], n_reading)
-        '''
+        
         zReading = parse_csv_returnZreading(data_folder, 'Current_Reading_{}.csv'.format(sen_address[n]))  # in Gauss
         time.sleep(1.1) 
         
@@ -132,7 +134,7 @@ for t in range(0, loop_iteration_total):
         print("\n")      
         
         # ---------------------------
-        u = controllers[n].update(ZReading_Average)              # compute new ouput. Save value in array U 
+        u = controllers[n].update(ZReading_Average)             # compute new ouput. Save value in array U 
         u = u* (-1)                                             # determine by the pin assignment to the channels
         
         if u >= 0:
