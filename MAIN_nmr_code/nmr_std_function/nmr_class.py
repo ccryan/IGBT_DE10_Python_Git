@@ -402,6 +402,10 @@ class tunable_nmr_system_2018:
             str(num_iter) 
         )
     
+    def FOVSenReading (self):
+        os.system(
+            self.work_dir + self.exec_folder + "hallArray_reading"
+        )
     
     def cpmgSequence(self, cpmg_freq, pulse1_us, pulse2_us, pulse1_dtcl, pulse2_dtcl, echo_spacing_us, scan_spacing_us, samples_per_echo, echoes_per_scan, init_adc_delay_compensation, number_of_iteration, ph_cycl_en, pulse180_t1_int, delay180_t1_int):
         # execute cpmg sequence
