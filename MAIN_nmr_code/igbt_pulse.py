@@ -16,7 +16,7 @@ from nmr_std_function.nmr_class import tunable_nmr_system_2018
 from nmr_std_function.data_parser import parse_csv_float2col
 
 from nmr_std_function.data_parser import parse_csv_returnZreading
-from nmr_std_function.kalman_filter_for_fpga import Kalman_Filter
+from nmr_std_function.kalman_filter import Kalman_Filter
 
 import matplotlib.pyplot as plt
 from scipy import signal
@@ -35,11 +35,11 @@ num_channel = 36
 plength = numpy.zeros(num_channel)
 
 # customize pulse length
-plength[9] = 20
-plength[11] = 0
+plength[8] = 0
+plength[10] = 20
 
 # sensor address
-sen_address = 31
+sen_address = 14
 pspac = 200
 
 # one duty cycle (us)
@@ -75,9 +75,9 @@ except:
     print("file does not exist")
 
 # read hall sensor value in Tesla
-nmrObj.igbtSenReading(sen_address, n_reading)
-zReading = parse_csv_returnZreading(data_folder, 'Current_Reading.csv')  # in Gauss
-os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
+# nmrObj.igbtSenReading(sen_address, n_reading)
+# zReading = parse_csv_returnZreading(data_folder, 'Current_Reading.csv')  # in Gauss
+# os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
 
 # kalman filter
 ZReading_Average = Kalman_Filter(n_reading, zReading)

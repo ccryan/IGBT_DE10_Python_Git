@@ -16,15 +16,14 @@ import time
 import numpy
 from nmr_std_function.nmr_class import tunable_nmr_system_2018
 from nmr_std_function.data_parser import parse_csv_returnZreading
-from nmr_std_function.kalman_filter_for_fpga import Kalman_Filter
-
+from nmr_std_function.kalman_filter import Kalman_Filter
 # variables
 data_folder = "/root/HallSensorData"
 en_remote_dbg = 0
 nmrObj = tunable_nmr_system_2018(data_folder, en_remote_dbg)
 
 # sensor address
-sen_address = 28
+sen_address = 14
 
 num_channel = 36
 plength_forward = numpy.zeros(num_channel)
@@ -45,7 +44,7 @@ maxDutyCycle = 20;                                # duty cycle limits
 minDutyCycle = -20;
 
 setpoint = 200                           # target magnetization in mTesla
-n_iter = 50                                     # number of iteration for hall reading
+n_iter = 1                                     # number of iteration for hall reading
     
 for t in range(0,3):                             # control algorithm main loop
     r = setpoint                                  # read target magnetization value, e.g. from GUI
@@ -96,11 +95,11 @@ for t in range(0,3):                             # control algorithm main loop
     iter = 1    # number of iteration
     
     if u >= 0:
-        plength_forward[16] = abs(np.int(u))                         # actuate magnet
+        plength_forward[8] = abs(np.int(u))                         # actuate magnet
         nmrObj.igbtPulseMagnetControl(plength_forward, pspac, iter)
       # positive_channel(u)                       # positive current channel
     if u < 0:
-        plength_backward[18] = abs(np.int(u))
+        plength_backward[10] = abs(np.int(u))
         nmrObj.igbtPulseMagnetControl(plength_backward, pspac, iter)
       # negative_channel(u)                       # negative current channel
     # --------------------------------------

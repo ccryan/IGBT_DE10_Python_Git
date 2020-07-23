@@ -1,8 +1,6 @@
-"""
-Revision 003
-- updated procedure for saving results to matlab file. Now, data of all magnets saved into one file.
-- hall sensor and current driver pin assignment (address) mapping 
-"""
+'''
+Created on July 10, 2020
+'''
 
 import os
 import matplotlib.pyplot as plt
@@ -13,8 +11,8 @@ import time
 
 from nmr_std_function.nmr_class import tunable_nmr_system_2018
 from nmr_std_function.data_parser import parse_csv_returnZreading
-from nmr_std_function.kalman_filter_for_fpga import Kalman_Filter
-from nmr_std_function.FeedbackController_revision002 import *
+from nmr_std_function.kalman_filter import Kalman_Filter
+from nmr_std_function.feedback_controller_class import *
 
 # variables
 data_folder = "/root/HallSensorData"
@@ -35,7 +33,7 @@ plength = np.zeros(num_channel)
 
 #plength_forward = numpy.zeros(num_channel)
 #plength_backward = numpy.zeros(num_channel)
-n_reading = 2    # number of reading 
+n_reading = 50   # number of reading 
 sen_address = [28, 29, 31, 33, 32 ,30, 34, 35, 36 ]
 #sen_address = [19, 20, 31, 33, 32 ,30, 34, 35, 36 ]
 forward_direction_addr = [9, 13, 16, 0, 4, 1, 5, 8, 12]
@@ -67,35 +65,51 @@ beta = 0.8                                     # .7  .6 setpoint weighting - nee
 
 min_pulse_length, max_pulse_length = -50,50.     # pulse length limits in mico seconds 
 
-# chkbrd = [-2000,2000,-2000,2000,-2000,2000,-2000,2000,-2000]
-# setpoints = chkbrd #initialization
+"""
+chkbrd = [-2000,2000,-2000,2000,-2000,2000,-2000,2000,-2000]
+setpoints = chkbrd #initialization
+bh_factor = [1,1,1,1,1,1,1,1,1]
+"""
 
 
 setpoints = np.zeros(magnets_num)                # target magnetization in Gauss
-setpoints[0] = 800#0 #100#
-setpoints[1] = 0#200 #100#
-setpoints[2] = 0#0 #100#
-setpoints[3] = 800#200 #100#
-setpoints[4] = 0#200#-2000#
-setpoints[5] = 0#200 #100#                     
-setpoints[6] = 800#0 #100#
-setpoints[7] = 0#200 #100#
-setpoints[8] = 0#0 #100#
+setpoints[0] = -500#-1000 #100#
+setpoints[1] = -500#200 #100#
+setpoints[2] = -500#0 #100#
+setpoints[3] = -500#200 #100#
+setpoints[4] = -500#200#-2000#
+setpoints[5] = -500#200 #100#                     
+setpoints[6] = -500#0 #100#
+setpoints[7] = -500#200 #100#
+setpoints[8] = -500#0 #100#
 
 bh_factor = np.zeros(magnets_num)                # target magnetization in Gauss
-bh_factor[0] = 0.5  
-bh_factor[1] = 0.05 
-bh_factor[2] = 0.05 
-bh_factor[3] = 0.5 
-bh_factor[4] = 0.05
-bh_factor[5] = 0.05                     
-bh_factor[6] = 0.5 
-bh_factor[7] = 0.05 
-bh_factor[8] = 0.05 
+bh_factor[0] = 0.5#.05 
+bh_factor[1] = 0.5 
+bh_factor[2] = 0.5  
+bh_factor[3] = 0.5   
+bh_factor[4] = 0.5  
+bh_factor[5] = 0.5                      
+bh_factor[6] = 0.5   
+bh_factor[7] = 0.5   
+bh_factor[8] = 0.5   
+
+"""
+pulse_on = {}
+pulse_on[0] = True
+pulse_on[1] = True
+pulse_on[2] = True
+pulse_on[3] = True
+pulse_on[4] = True
+pulse_on[5] = True
+pulse_on[6] = True
+pulse_on[7] = True
+pulse_on[8] = True
+"""
 
 
 pulse_on = {}
-pulse_on[0] = False
+pulse_on[0] = True
 pulse_on[1] = True
 pulse_on[2] = True
 pulse_on[3] = True
@@ -145,13 +159,13 @@ pulse_on[8] = False
 # pulse_on[8] = False
 
 for n in range(0,magnets_num):
-    Kp = .28 *bh_factor[n]                                     
-    Ki = 0.5 *bh_factor[n]    
-    controllers.append(FeedbackController(Kp,Ki, Kd, 
+    Kp_weight = Kp *bh_factor[n]                                     
+    Ki_weight = Ki *bh_factor[n]    
+    controllers.append(FeedbackController(Kp_weight,Ki_weight, Kd, 
                                         beta, 
                                         setpoint=setpoints[n], 
                                         output_limits=(min_pulse_length,max_pulse_length), 
-                                        setpoint_weighting=True,
+                                        setpoint_weighting=False,
                                         proportional_on_input=False,
                                         output_enabled=pulse_on[n]))
 
