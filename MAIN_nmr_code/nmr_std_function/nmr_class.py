@@ -294,7 +294,7 @@ class tunable_nmr_system_2018:
             outpath
         )
     
-    def igbtPulse (self, plength, pspac, iter, sen_channel):
+    def igbtPulse (self, plength, pspac, iter):
         os.system(
             self.work_dir + self.exec_folder + "igbt_pulser" + " " +
             str(plength[0]) + " " +
@@ -334,8 +334,7 @@ class tunable_nmr_system_2018:
             str(plength[34]) + " " +
             str(plength[35]) + " " +
             str(pspac) + " " +                      
-            str(iter) + " " + 
-            str(sen_channel)     
+            str(iter)    
         )
         
     def igbtPulseMagnetControl (self, plength, pspac, iter):

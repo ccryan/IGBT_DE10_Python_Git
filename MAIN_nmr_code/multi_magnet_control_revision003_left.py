@@ -1,6 +1,8 @@
-'''
-Created on July 10, 2020
-'''
+"""
+Revision 003
+- updated procedure for saving results to matlab file. Now, data of all magnets saved into one file.
+- hall sensor and current driver pin assignment (address) mapping 
+"""
 
 import os
 import matplotlib.pyplot as plt
@@ -8,22 +10,24 @@ import scipy.io as sio
 import numpy as np
 import datetime
 import time
+import shutil
 
 from nmr_std_function.nmr_class import tunable_nmr_system_2018
 from nmr_std_function.data_parser import parse_csv_returnZreading
-from nmr_std_function.kalman_filter import Kalman_Filter
-from nmr_std_function.feedback_controller_class import *
+from nmr_std_function.kalman_filter_for_fpga import Kalman_Filter
+from nmr_std_function.feedback_controller_class_004_AH import *
 
 # variables
 data_folder = "/root/HallSensorData"
 en_remote_dbg = 0
 nmrObj = tunable_nmr_system_2018(data_folder, en_remote_dbg)
 
+st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d %H_%M_%S')
+
 try:
     os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
 except:
     print("file does not exist")
-
 
 # --------------------- Pin address assignement --------------------------------
 num_channel = 36
@@ -33,11 +37,13 @@ plength = np.zeros(num_channel)
 
 #plength_forward = numpy.zeros(num_channel)
 #plength_backward = numpy.zeros(num_channel)
-n_reading = 50   # number of reading 
-sen_address = [28, 29, 31, 33, 32 ,30, 34, 35, 36 ]
-#sen_address = [19, 20, 31, 33, 32 ,30, 34, 35, 36 ]
-forward_direction_addr = [9, 13, 16, 0, 4, 1, 5, 8, 12]
-reverse_direction_addr = [11, 15, 18, 2, 6, 3, 7, 10, 14]
+n_reading = 1  # number of reading 
+#sen_address = [28, 29, 31, 33, 32 ,30, 34, 35, 36 ]
+sen_address =            [1, 2, 3, 4, 5 , 6 , 7 , 8 , 9]
+forward_direction_addr = [0, 4, 1, 5, 8 , 12, 11, 13, 16] #decrease HS reading
+reverse_direction_addr = [2, 6, 3, 7, 10, 14, 9 , 15, 18]#increase HS reading
+
+
 enable_message = False
 if enable_message == False:
     print("\n") 
@@ -47,7 +53,7 @@ if enable_message == False:
 
 
 # -------------------- Controller initialization -------------------------------    
-loop_iteration_total = 20
+loop_iteration_total = 1
 
 
 magnets_num = 9
@@ -58,110 +64,56 @@ U=np.zeros(magnets_num)
 
 #bh_factor = 0.05#0.5 # Anjana, consider optimizing this variable during autotuning...                                      #.7
 
-Kp = .28                                       # 0.1 .05 0.6 .10 proportional gain - needs tuning
-Ki = 0.5                                      #.06 .1 0.2 0.1875 0.02 integral gain - needs tuning
+Kp = .05                                       # 0.1 .05 0.6 .10 proportional gain - needs tuning
+Ki = .15                                      #.06 .1 0.2 0.1875 0.02 integral gain - needs tuning
 Kd = 0                                          # differential gain 
-beta = 0.8                                     # .7  .6 setpoint weighting - needs tuning
+beta = 1                                     # .7  .6 setpoint weighting - needs tuning
 
-min_pulse_length, max_pulse_length = -50,50.     # pulse length limits in mico seconds 
+min_pulse_length, max_pulse_length = -15,15.     # pulse length limits in mico seconds 
 
-"""
-chkbrd = [-2000,2000,-2000,2000,-2000,2000,-2000,2000,-2000]
-setpoints = chkbrd #initialization
-bh_factor = [1,1,1,1,1,1,1,1,1]
-"""
+# chkbrd = [-2000,2000,-2000,2000,-2000,2000,-2000,2000,-2000]
+# setpoints = chkbrd #initialization
 
 
 setpoints = np.zeros(magnets_num)                # target magnetization in Gauss
-setpoints[0] = -500#-1000 #100#
-setpoints[1] = -500#200 #100#
-setpoints[2] = -500#0 #100#
-setpoints[3] = -500#200 #100#
-setpoints[4] = -500#200#-2000#
-setpoints[5] = -500#200 #100#                     
-setpoints[6] = -500#0 #100#
-setpoints[7] = -500#200 #100#
-setpoints[8] = -500#0 #100#
+value=1500
+setpoints[0] = 1500#0 #100#
+setpoints[1] = 1500#200 #100#
+setpoints[2] = 1500#0 #100#
+setpoints[3] = 1500#200 #100#
+setpoints[4] = 1500#200#-2000#
+setpoints[5] = 1500#200 #100#                     
+setpoints[6] = 1500#0 #100#
+setpoints[7] = 1500#200 #100#
+setpoints[8] = 1500#0 #100#
 
 bh_factor = np.zeros(magnets_num)                # target magnetization in Gauss
-bh_factor[0] = 0.5#.05 
-bh_factor[1] = 0.5 
-bh_factor[2] = 0.5  
-bh_factor[3] = 0.5   
-bh_factor[4] = 0.5  
-bh_factor[5] = 0.5                      
-bh_factor[6] = 0.5   
-bh_factor[7] = 0.5   
-bh_factor[8] = 0.5   
-
-"""
-pulse_on = {}
-pulse_on[0] = True
-pulse_on[1] = True
-pulse_on[2] = True
-pulse_on[3] = True
-pulse_on[4] = True
-pulse_on[5] = True
-pulse_on[6] = True
-pulse_on[7] = True
-pulse_on[8] = True
-"""
-
+f=1
+bh_factor[0] = f  
+bh_factor[1] = f 
+bh_factor[2] = f
+bh_factor[3] = f
+bh_factor[4] = f
+bh_factor[5] = f                   
+bh_factor[6] = f 
+bh_factor[7] = f
+bh_factor[8] = f 
 
 pulse_on = {}
 pulse_on[0] = True
-pulse_on[1] = True
-pulse_on[2] = True
-pulse_on[3] = True
-pulse_on[4] = True
-pulse_on[5] = True
-pulse_on[6] = True
-pulse_on[7] = True
-pulse_on[8] = True
-
-
-"""
-#cross config
-pulse_on = {}
-pulse_on[0] = False
-pulse_on[1] = True
+pulse_on[1] = False
 pulse_on[2] = False
 pulse_on[3] = True
-pulse_on[4] = True
-pulse_on[5] = True
-pulse_on[6] = False
-pulse_on[7] = True
+pulse_on[4] = False
+pulse_on[5] = False
+pulse_on[6] = True
+pulse_on[7] = False
 pulse_on[8] = False
-"""
-
-#1 stripe
-# pulse_on = {}
-# pulse_on[0] = True
-# pulse_on[1] = False
-# pulse_on[2] = False
-# pulse_on[3] = True
-# pulse_on[4] = False
-# pulse_on[5] = False
-# pulse_on[6] = True
-# pulse_on[7] = False
-# pulse_on[8] = False
-
-#  #2 stripe
-# pulse_on = {}
-# pulse_on[0] = True
-# pulse_on[1] = True
-# pulse_on[2] = False
-# pulse_on[3] = True
-# pulse_on[4] = True
-# pulse_on[5] = False
-# pulse_on[6] = True
-# pulse_on[7] = True
-# pulse_on[8] = False
 
 for n in range(0,magnets_num):
-    Kp_weight = Kp *bh_factor[n]                                     
-    Ki_weight = Ki *bh_factor[n]    
-    controllers.append(FeedbackController(Kp_weight,Ki_weight, Kd, 
+    Kp_weighted = Kp *bh_factor[n]                                     
+    Ki_weighted = Ki *bh_factor[n]    
+    controllers.append(FeedbackController(Kp_weighted, Ki_weighted, Kd, 
                                         beta, 
                                         setpoint=setpoints[n], 
                                         output_limits=(min_pulse_length,max_pulse_length), 
@@ -188,10 +140,10 @@ for t in range(0, loop_iteration_total):
         # kalman filter
         ZReading_Average = Kalman_Filter(n_reading, zReading_Sensor)
         y = ZReading_Average  
-        print("\n")   
+        #print("\n")   
         print("\tCurrent hall reading is : {}".format(y))
         print("\tSensor Address is : {}".format(sen_address[n]))
-        print("\n")      
+        #print("\n")      
         
         # ---------------------------
         u = controllers[n].update(ZReading_Average)             # compute new ouput. Save value in array U 
@@ -202,14 +154,15 @@ for t in range(0, loop_iteration_total):
 
         if u < 0:
             plength[reverse_direction_addr[n]] = abs(np.int(u))
-    
+            
+    shutil.copy(data_folder + '/Current_Reading.csv', data_folder + '/SensorReading_' + st + '_Iter_{}.csv'.format(t))
     os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
     print("\t plength : {}".format(plength))
-    nmrObj.igbtPulseMagnetControl(plength, pspac, pulse_reptition)
+    nmrObj.igbtPulse(plength, pspac, pulse_reptition)
 
 # save results as MAT file
 experiment_data = {}
-st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d %H_%M_%S')
+
 for n in range(0,magnets_num):
   experiment_data.update({'magnet_'+str(n):{
       'control_tunings': controllers[n].tunings,
@@ -224,8 +177,6 @@ for n in range(0,magnets_num):
       }})
 
 sio.savemat('Feedback_Control_Results_'+st+'.mat', experiment_data) 
-
-
 
 # plot results
 t = np.linspace(0,controllers[0].time_total,controllers[0].time_total)
@@ -244,7 +195,8 @@ for n in range(0,rows): # rows
       a[n][m].plot(t,controllers[k].input_data,'b-', label='magnetization')  
       #a[n][m].plot(t,controllers[k].error_data,'y-', label='error')
       a[n][m].grid(True)
-      a[n][m].legend(loc='best')
+      if k == 0:
+          a[n][m].legend(loc='best')
       
       b[n][m].set_title('Magnet '+ str(sen_address[k]))
       #b[n][m].set_xlabel('Iterations')
@@ -253,6 +205,8 @@ for n in range(0,rows): # rows
       b[n][m].plot(t,np.ones(controllers[k].time_total)*min_pulse_length,'b--', label='min_pulse') 
       b[n][m].plot(t,controllers[k].output_data,'g*-', label='pulse')
       b[n][m].grid(True)
-      b[n][m].legend(loc='best')
+      if k == 0:
+          b[n][m].legend(loc='best')
       k += 1
 plt.show()
+plt.savefig( data_folder + '/setpoint.png' )

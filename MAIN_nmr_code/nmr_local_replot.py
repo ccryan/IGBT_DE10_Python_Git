@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from scipy import signal
 
 # variables
-data_folder = "X:\\NMR_Data"
+data_folder = "V://NMR_DATA"
 en_fig = True
 en_remote_dbg = False
 use_latest_folder = True  # use latest experiment, otherwise specify the folder below

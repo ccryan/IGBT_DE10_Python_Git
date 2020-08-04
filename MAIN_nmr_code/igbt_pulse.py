@@ -35,11 +35,19 @@ num_channel = 36
 plength = numpy.zeros(num_channel)
 
 # customize pulse length
+<<<<<<< Updated upstream
 plength[8] = 0
 plength[10] = 20
 
 # sensor address
 sen_address = 14
+=======
+plength[32] = 50
+plength[34] = 0
+
+# sensor address
+sen_address = 24
+>>>>>>> Stashed changes
 pspac = 200
 
 # one duty cycle (us)
@@ -67,7 +75,7 @@ print("\tCurrent hall reading is : {}".format(y))
 print("\tSensor Address is : {}".format(sen_address))
 print("\n")      
 
-nmrObj.igbtPulse(plength, pspac, iter, sen_address)
+nmrObj.igbtPulse(plength, pspac, iter)
 
 try:
     os.remove(data_folder + '/Current_Reading.csv') # delete current_reading.csv every time
